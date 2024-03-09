@@ -1,10 +1,16 @@
-﻿try
+﻿using DiscordBackup.Bot.Commands;
+
+Log.Logger = new LoggerConfiguration()
+		    .Enrich.FromLogContext()
+			.WriteTo.Console()
+		    .CreateLogger();
+
+try
 {
 	var host = Host.CreateDefaultBuilder()
 		.ConfigureAppConfiguration(builder =>
 		{
-			builder.SetBasePath(Directory.GetCurrentDirectory())
-				   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+			builder.AddUserSecrets<Program>()
 				   .AddEnvironmentVariables();
 		})
 		.ConfigureServices((context, service) =>
@@ -25,15 +31,20 @@
 				return new DiscordSocketClient(socketConfig);
 			});
 
-			service.AddSingleton<Backup>();
+			service.AddScoped<BackupCommand>();
+			service.AddSingleton<CommandHandler>();
 			service.AddHostedService<BackupBot>();
+
+			service.AddDbContext<DbbContext>(d => d.UseSqlite("Data Source=database.db"));
 		})
 		.UseSerilog((h, l) => l.ReadFrom.Configuration(h.Configuration))
 		.Build();
 
-	host.Start();
-
 	await host.RunAsync();
+}
+catch(HostAbortedException)
+{
+	// ignore
 }
 catch(Exception e)
 {
