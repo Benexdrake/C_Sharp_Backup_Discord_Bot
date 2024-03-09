@@ -10,6 +10,7 @@ namespace Discord_Bot.Models
 	{
 		public int Id { get; set; }
 		public User User { get; set; }
+		public Channel Channel { get; set; }
         public string Content { get; set; }
         public bool Files { get; set; }
     }
