@@ -1,6 +1,9 @@
-﻿namespace DiscordBackupBot.Commands.Slash;
+﻿using Discord.Interactions;
 
-public class Backup(IServiceProvider service, IConfiguration conf, ILogger<Backup> Logger)
+namespace DiscordBackupBot.Commands.Slash;
+
+public class BackupCommand(IServiceProvider service, IConfiguration conf, ILogger<BackupCommand> Logger)
+	: InteractionModuleBase<SocketInteractionContext>
 {
 	private readonly DiscordSocketClient _client = service.GetRequiredService<DiscordSocketClient>();
 	private ulong _guildId = ulong.Parse(conf["GuildID"]);
@@ -17,5 +20,11 @@ public class Backup(IServiceProvider service, IConfiguration conf, ILogger<Backu
 
 		await guild.CreateApplicationCommandAsync(backup.Build());
 		Logger.LogInformation("Slash Command Backup");
+	}
+
+	[SlashCommand("backup", "backup", true, RunMode.Async)]
+	public async Task Backup()
+	{
+		await ReplyAsync("BACK UP!");
 	}
 }

@@ -1,11 +1,16 @@
-﻿try
+﻿using DiscordBackup.Bot.Commands;
+
+Log.Logger = new LoggerConfiguration()
+		    .Enrich.FromLogContext()
+			.WriteTo.Console()
+		    .CreateLogger();
+
+try
 {
 	var host = Host.CreateDefaultBuilder()
 		.ConfigureAppConfiguration(builder =>
 		{
-			builder.SetBasePath(Directory.GetCurrentDirectory())
-				   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-				   .AddUserSecrets<Program>()
+			builder.AddUserSecrets<Program>()
 				   .AddEnvironmentVariables();
 		})
 		.ConfigureServices((context, service) =>
@@ -13,7 +18,7 @@
 			service.AddHttpClient("default")
 				   .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
 				   {
-					ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+					   ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
 				   });
 
 			service.AddSingleton(sp =>
@@ -26,15 +31,20 @@
 				return new DiscordSocketClient(socketConfig);
 			});
 
-			service.AddScoped<Backup>();
+			service.AddScoped<BackupCommand>();
+			service.AddSingleton<CommandHandler>();
 			service.AddHostedService<BackupBot>();
+
+			service.AddDbContext<DbbContext>(d => d.UseSqlite("Data Source=database.db"));
 		})
 		.UseSerilog((h, l) => l.ReadFrom.Configuration(h.Configuration))
 		.Build();
 
-	host.Start();
-
 	await host.RunAsync();
+}
+catch(HostAbortedException)
+{
+	// ignore
 }
 catch(Exception e)
 {
