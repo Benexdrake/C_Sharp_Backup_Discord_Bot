@@ -5,6 +5,7 @@
 		{
 			builder.SetBasePath(Directory.GetCurrentDirectory())
 				   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+				   .AddUserSecrets<Program>()
 				   .AddEnvironmentVariables();
 		})
 		.ConfigureServices((context, service) =>
@@ -12,7 +13,7 @@
 			service.AddHttpClient("default")
 				   .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
 				   {
-					   ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+					ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
 				   });
 
 			service.AddSingleton(sp =>
@@ -25,7 +26,7 @@
 				return new DiscordSocketClient(socketConfig);
 			});
 
-			service.AddSingleton<Backup>();
+			service.AddScoped<Backup>();
 			service.AddHostedService<BackupBot>();
 		})
 		.UseSerilog((h, l) => l.ReadFrom.Configuration(h.Configuration))
