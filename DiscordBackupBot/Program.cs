@@ -10,19 +10,21 @@
 		.ConfigureServices((context, service) =>
 		{
 			service.AddHttpClient("default")
-				   .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler() 
-				   { 
-					   ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator 
+				   .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+				   {
+					   ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
 				   });
-            service.AddSingleton(sp =>
-			{
-                var socketConfig = new DiscordSocketConfig
-                {
-                    GatewayIntents = GatewayIntents.All
-                };
 
-                return new DiscordSocketClient(socketConfig);
-            });
+			service.AddSingleton(sp =>
+			{
+				var socketConfig = new DiscordSocketConfig
+				{
+					GatewayIntents = GatewayIntents.All
+				};
+
+				return new DiscordSocketClient(socketConfig);
+			});
+
 			service.AddSingleton<Backup>();
 			service.AddHostedService<BackupBot>();
 		})

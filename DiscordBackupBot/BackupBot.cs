@@ -6,7 +6,7 @@ public class BackupBot(IServiceProvider Services, IConfiguration Config, ILogger
 	private readonly DiscordSocketClient _dsc = Services.GetRequiredService<DiscordSocketClient>();
 	private readonly Backup _backupSlash = Services.GetRequiredService<Backup>();
 
-    private void AddBotEvents()
+	private void AddBotEvents()
 	{
 		_dsc.Ready += Event_Ready;
 		_dsc.Log += Event_Log;
@@ -17,23 +17,23 @@ public class BackupBot(IServiceProvider Services, IConfiguration Config, ILogger
 
 	private async Task Event_SlashCommandExecuted(SocketSlashCommand arg)
 	{
-        Logger.LogInformation("Executed: {arg.CommandName}", arg.CommandName);
+		Logger.LogInformation("Executed: {arg.CommandName}", arg.CommandName);
 	}
 
 	private async Task Event_MessageDeleted(Cacheable<IMessage, ulong> arg1, Cacheable<IMessageChannel, ulong> arg2)
 	{
-        Logger.LogInformation("Message: {arg1.Id} - Deleted", arg1.Id);
-    }
+		Logger.LogInformation("Message: {arg1.Id} - Deleted", arg1.Id);
+	}
 
 	private async Task Event_MessageCreated(SocketMessage arg)
 	{
-        Logger.LogInformation(arg.Content);
+		Logger.LogInformation(arg.Content);
 
-    }
+	}
 
 	private async Task Event_Log(LogMessage arg)
 	{
-        Logger.LogInformation(arg.Message);
+		Logger.LogInformation(arg.Message);
 	}
 
 	private async Task Event_Ready()
@@ -46,14 +46,14 @@ public class BackupBot(IServiceProvider Services, IConfiguration Config, ILogger
 	{
 		AddBotEvents();
 
-        var key = _config["Token"];
+		var key = _config["Token"];
 		await _dsc.LoginAsync(TokenType.Bot, key);
 		await _dsc.StartAsync();
 	}
 
 	public async Task StopAsync(CancellationToken cancellationToken)
 	{
-        await _dsc.LogoutAsync();
-        await _dsc.StopAsync();
-    }
+		await _dsc.LogoutAsync();
+		await _dsc.StopAsync();
+	}
 }
