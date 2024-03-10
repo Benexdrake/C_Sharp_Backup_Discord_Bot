@@ -33,10 +33,14 @@ try
 
 			service.AddScoped<BackupChannelCommand>();
 			service.AddScoped<AddBackupGuildCommand>();
+			
 			service.AddScoped<BackupLogic>();
+			service.AddScoped<JoinedLogic>();
+
 			service.AddSingleton<CommandHandler>();
 			service.AddSingleton<JoinedHandler>();
 			service.AddSingleton<MessageHandler>();
+			
 			service.AddHostedService<BackupBot>();
 
 			service.AddDbContext<DbbContext>(d => d.UseSqlite("Data Source=database.db"));
