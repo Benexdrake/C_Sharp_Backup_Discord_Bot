@@ -13,7 +13,7 @@ public class CommandHandler(IServiceProvider Services, IConfiguration Config, IL
             switch (arg.CommandName.ToLower())
             {
                 case "backup":
-                        await backupLogic.InsertUpdateChannel(arg);
+                    await backupLogic.InsertUpdateChannel(arg);
                     break;
                 case "add_backup_server":
                     await backupLogic.BackupGuildHandler(arg);
