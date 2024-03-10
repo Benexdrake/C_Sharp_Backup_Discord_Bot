@@ -1,4 +1,5 @@
-﻿using DiscordBackup.Bot.Data.Models;
+﻿using Discord.Webhook;
+using DiscordBackup.Bot.Data.Models;
 using System.Net;
 
 namespace DiscordBackup.Bot.Data.Logic;
@@ -57,7 +58,10 @@ public class BackupLogic(IServiceProvider Services, IConfiguration Config, ILogg
 		if(dbChannel is not null)
 		{
 			if(backup.Equals("on"))
+			{
+				await CreateBackupGuild();
 				dbChannel.hasBackup = true;
+			}
 			else
 				dbChannel.hasBackup = false;
 		}
@@ -96,6 +100,21 @@ public class BackupLogic(IServiceProvider Services, IConfiguration Config, ILogg
 				await File.WriteAllBytesAsync(path+"\\"+file.Filename, f);	
 			}
 		}
+	}
 
+	public async Task CreateBackupGuild()
+	{
+		var region = await _client.GetVoiceRegionAsync("japan");
+		if (region is not null)
+		{
+			var backupGuild = _client.Guilds.Where(x => x.Name.Contains("backup")).FirstOrDefault();
+
+			if (backupGuild is not null)
+				await backupGuild.DeleteAsync();
+
+			if (backupGuild is null)
+				await _client.CreateGuildAsync($"backup", region);
+
+		}
 	}
 }

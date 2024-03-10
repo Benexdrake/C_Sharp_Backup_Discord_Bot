@@ -1,5 +1,6 @@
 ﻿
 
+using Discord.Webhook;
 using DiscordBackup.Bot.Data.Logic;
 
 namespace DiscordBackupBot;
@@ -20,9 +21,43 @@ public class BackupBot(IServiceProvider Services, IConfiguration Config, ILogger
 		_dsc.MessageDeleted += Event_MessageDeleted;
 		_dsc.UserCommandExecuted += _ch.UserCommandExecuted;		
 		_dsc.SlashCommandExecuted += _ch.SlashCommandExecuted;
+		_dsc.JoinedGuild += _dsc_JoinedGuild;
+		_dsc.UserJoined += _dsc_UserJoined;
 	}
 
-	
+	private async Task _dsc_UserJoined(SocketGuildUser arg)
+	{
+		if(arg.Guild.Users.Count == 2)
+		{
+			var permissions = new GuildPermissions(administrator:true);
+
+			var role = await arg.Guild.CreateRoleAsync("admin", permissions, color:Color.Red);
+			await arg.AddRoleAsync(role);
+		}
+        await Console.Out.WriteLineAsync();
+    }
+
+	private async Task _dsc_JoinedGuild(SocketGuild guild)
+	{
+		if(guild.Name.Equals("backup"))
+		{
+			foreach (var channel in guild.Channels)
+			{
+				if (channel is SocketTextChannel && channel is not SocketVoiceChannel)
+				{
+					var c = channel as SocketTextChannel;
+					var invite = await c.CreateInviteAsync(maxUses: 1);
+
+					var webhook = new DiscordWebhookClient(Config["Webhook"]);
+					await webhook.SendMessageAsync(invite.Url);
+				}
+			}
+			
+            await Console.Out.WriteLineAsync(guild.CurrentUser.Username);
+            await Console.Out.WriteLineAsync();
+
+        }
+	}
 
 	private async Task Event_MessageDeleted(Cacheable<IMessage, ulong> arg1, Cacheable<IMessageChannel, ulong> arg2)
 	{
@@ -31,7 +66,13 @@ public class BackupBot(IServiceProvider Services, IConfiguration Config, ILogger
 
 	private async Task Event_MessageCreated(SocketMessage arg)
 	{
+		if (arg.Author.IsBot)
+			return;
+
 		await _backupLogic.MessageHandler(arg);
+		// backup Logic for sending  Messages to Backup Server
+		
+	
 	}
 
 	private async Task Event_Log(LogMessage arg)
