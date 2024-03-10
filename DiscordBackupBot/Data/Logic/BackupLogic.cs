@@ -79,7 +79,7 @@ public class BackupLogic(IServiceProvider Services, IConfiguration Config, ILogg
 	{
 		var messageId = message.Id;
 		var channelId = message.Channel.Id;
-		var path = $"files\\{channelId}\\{messageId}";
+		var path = $"{Config["DownloadPath"]}\\{channelId}\\{messageId}";
 
 		if (Directory.Exists(path))
 			return;
