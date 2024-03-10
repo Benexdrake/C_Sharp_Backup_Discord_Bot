@@ -1,5 +1,4 @@
-﻿using DiscordBackup.Bot.Commands;
-using DiscordBackup.Bot.Data.Logic;
+﻿using DiscordBackup.Bot.DL;
 
 Log.Logger = new LoggerConfiguration()
 		    .Enrich.FromLogContext()
@@ -32,9 +31,12 @@ try
 				return new DiscordSocketClient(socketConfig);
 			});
 
-			service.AddScoped<BackupCommand>();
+			service.AddScoped<BackupChannelCommand>();
+			service.AddScoped<AddBackupGuildCommand>();
 			service.AddScoped<BackupLogic>();
 			service.AddSingleton<CommandHandler>();
+			service.AddSingleton<JoinedHandler>();
+			service.AddSingleton<MessageHandler>();
 			service.AddHostedService<BackupBot>();
 
 			service.AddDbContext<DbbContext>(d => d.UseSqlite("Data Source=database.db"));
