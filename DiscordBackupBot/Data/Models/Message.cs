@@ -2,8 +2,10 @@
 
 public class Message
 {
-    public int Id { get; set; }
-    public Channel Channel { get; set; } = null!;
+    public ulong Id { get; set; }
     public string Content { get; set; } = string.Empty;
+    public ulong ChannelId { get; set; }
+    public ulong UserId { get; set; }
+    public DateTime CreatedAt { get; set; }
     public bool HasFiles { get; set; }
 }
