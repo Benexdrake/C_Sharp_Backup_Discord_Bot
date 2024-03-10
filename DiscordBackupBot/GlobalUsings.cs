@@ -17,5 +17,6 @@ global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 global using DiscordBackup.Bot.Data;
+global using DiscordBackup.Bot.Commands;
 
 global using Serilog.Events;
