@@ -13,7 +13,7 @@ public class AddBackupGuildCommand(IServiceProvider Service, IConfiguration Conf
 			var command = new SlashCommandBuilder()
 						.WithName("add_backup_server")
 						.WithDescription("create or add with id a discord server")
-						.AddOption(new SlashCommandOptionBuilder().WithName("id").WithDescription("insert guild id").WithType(ApplicationCommandOptionType.Number));
+						.AddOption(new SlashCommandOptionBuilder().WithName("id").WithDescription("insert guild id").WithType(ApplicationCommandOptionType.String));
 			await g.CreateApplicationCommandAsync(command.Build());
 			Logger.LogInformation("Slash Command Add_Backup_Server");
 		}
