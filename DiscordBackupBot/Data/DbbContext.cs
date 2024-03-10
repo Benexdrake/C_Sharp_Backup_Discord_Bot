@@ -6,6 +6,7 @@ public class DbbContext : DbContext
     {}
     public DbSet<Channel> Channels { get; set; }
     public DbSet<Message> Messages { get; set; }
+    public DbSet<BackupGuild> BackupGuild { get; set; }
 
     public Task Migrate() => Database.MigrateAsync();
 }
