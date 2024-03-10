@@ -1,4 +1,6 @@
-﻿using System.Net.WebSockets;
+﻿using Discord;
+using DiscordBackup.Bot.Data.Models;
+using System.Net.WebSockets;
 
 namespace DiscordBackup.Bot.DL;
 
@@ -53,16 +55,23 @@ public class BackupLogic(IServiceProvider Services, IConfiguration Config, ILogg
 	public async Task InsertUpdateChannel(SocketSlashCommand arg)
     {
         var backup = arg.Data.Options.FirstOrDefault().Name;
-        var channel = arg.Channel;
 
-        var dbChannel = _dbContext.Channels.Where(x => x.Id == channel.Id).FirstOrDefault();
+        var channel = arg.Channel as SocketTextChannel;
+
+
+
+		//await channel.CreateWebhookAsync(channel.Name + "_Webhook");
+
+		var dbChannel = _dbContext.Channels.Where(x => x.Id == channel.Id).FirstOrDefault();
 
         if (dbChannel is not null)
         {
             if (backup.Equals("on"))
             {
                 dbChannel.hasBackup = true;
-            }
+                await CreateBackupChannel(arg);
+
+			}
             else
                 dbChannel.hasBackup = false;
         }
@@ -109,12 +118,13 @@ public class BackupLogic(IServiceProvider Services, IConfiguration Config, ILogg
         if (region is not null)
         {
             var backupGuild = _client.Guilds.Where(x => x.Name.Contains("backup")).FirstOrDefault();
-
-            await backupGuild.DeleteAsync();
+            
+            if(backupGuild is not null)
+                await backupGuild.DeleteAsync();
 
             var newGuild = await _client.CreateGuildAsync($"backup", region);
 
-            //insert GuildID into DB
+            await InsertOrUpdateBackupGuild(newGuild.Id);
         }
     }
 
@@ -122,17 +132,59 @@ public class BackupLogic(IServiceProvider Services, IConfiguration Config, ILogg
     {
         if(arg.Data.Options.Count > 0)
         {
+            var options = arg.Data.Options.ToList();
+            var id = options[0].Value;
+            var n = ulong.TryParse(id.ToString(), out ulong number);
 
-            return;
+            if (!n)
+            {
+                await arg.RespondAsync("This was not a GuildID", ephemeral:true);
+                return;
+            }
+                await arg.RespondAsync("Insert new GuildID into DB", ephemeral:true);
+                await InsertOrUpdateBackupGuild(number);
+			return;
         }
 
+        await arg.RespondAsync("Create new Guild and insert new GuildID into DB", ephemeral:true);
         await CreateBackupGuild();
-		// insert ID of new Guild into DB
-		//var backupGuild = _client.Guilds.Where(x => x.Name.Contains("backup")).FirstOrDefault();
-
-        
-
-        await Console.Out.WriteLineAsync(_client.Guilds.Count.ToString());
-        await Console.Out.WriteLineAsync();
     }
+
+    private async Task InsertOrUpdateBackupGuild(ulong id)
+    {
+		var dbGuild = _dbContext.BackupGuild.FirstOrDefault();
+
+		if (dbGuild is null)
+			_dbContext.BackupGuild.Add(new BackupGuild() { Id = id });
+		else
+		{
+			_dbContext.BackupGuild.Remove(dbGuild);
+			_dbContext.BackupGuild.Add(new BackupGuild() { Id = id });
+		}
+		_dbContext.SaveChanges();
+	}
+
+    public async Task CreateBackupChannel(SocketSlashCommand arg)
+    {
+		var bgID = _dbContext.BackupGuild.FirstOrDefault();
+		if (bgID is null)
+			return;
+
+		var guild = _client.Guilds.ToList().Where(x => x.Id == bgID.Id).FirstOrDefault();
+		if (guild is not null)
+		{
+			var channel = guild.Channels.Where(x => x.Name.Equals(arg.Channel.Name)).FirstOrDefault() as SocketTextChannel;
+            if (channel is null)
+            {
+                var newChannel = await guild.CreateTextChannelAsync(arg.Channel.Name);
+                
+                var wc = await newChannel.CreateWebhookAsync(newChannel.Name + "_Webhook");
+
+                await Task.Delay(1000);
+				//var webhook = new DiscordWebhookClient(wc);
+				//await webhook.SendMessageAsync("Webhook Created");
+				await Console.Out.WriteLineAsync();
+            }
+		}
+	}
 }
