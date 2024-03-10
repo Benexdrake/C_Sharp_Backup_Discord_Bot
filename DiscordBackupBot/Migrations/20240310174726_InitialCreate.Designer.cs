@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiscordBackup.Bot.Migrations
 {
     [DbContext(typeof(DbbContext))]
-    [Migration("20240310101008_InitialCreate")]
+    [Migration("20240310174726_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -19,6 +19,17 @@ namespace DiscordBackup.Bot.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
+
+            modelBuilder.Entity("DiscordBackup.Bot.Data.Models.BackupGuild", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BackupGuild");
+                });
 
             modelBuilder.Entity("DiscordBackup.Bot.Data.Models.Channel", b =>
                 {

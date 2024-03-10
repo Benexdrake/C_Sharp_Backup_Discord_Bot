@@ -17,6 +17,17 @@ namespace DiscordBackup.Bot.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
 
+            modelBuilder.Entity("DiscordBackup.Bot.Data.Models.BackupGuild", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BackupGuild");
+                });
+
             modelBuilder.Entity("DiscordBackup.Bot.Data.Models.Channel", b =>
                 {
                     b.Property<ulong>("Id")
