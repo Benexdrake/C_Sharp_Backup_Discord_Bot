@@ -1,4 +1,5 @@
 ﻿using DiscordBackup.Bot.Data.Models;
+using System.Net;
 
 namespace DiscordBackup.Bot.Data.Logic;
 
@@ -32,6 +33,7 @@ public class BackupLogic(IServiceProvider Services, IConfiguration Config, ILogg
 		if(message.Attachments.Count > 0)
 		{
 			hasFiles = true;
+			await DownloadFiles(message);
 		}
 
 		var addMessage = new Message()
@@ -67,11 +69,33 @@ public class BackupLogic(IServiceProvider Services, IConfiguration Config, ILogg
 				Name = channel.Name,
 				hasBackup = true
 			};
-
 			_dbContext.Channels.Add(addChannel);
 		}
-
 		_dbContext.SaveChanges();
+
+	}
+
+	public async Task DownloadFiles(SocketMessage message)
+	{
+		var messageId = message.Id;
+		var channelId = message.Channel.Id;
+		var path = $"files\\{channelId}\\{messageId}";
+
+		if (Directory.Exists(path))
+			return;
+
+		Directory.CreateDirectory(path);
+
+		foreach( var file in message.Attachments )
+		{
+			using (var client = new HttpClient())
+			using (var result = await client.GetAsync(file.Url))
+			if(result.IsSuccessStatusCode)
+			{
+				var f = await result.Content.ReadAsByteArrayAsync();
+				await File.WriteAllBytesAsync(path+"\\"+file.Filename, f);	
+			}
+		}
 
 	}
 }
