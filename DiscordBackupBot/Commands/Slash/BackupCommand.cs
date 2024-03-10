@@ -16,8 +16,7 @@ public class BackupCommand(IServiceProvider service, IConfiguration conf, ILogge
 			var backup = new SlashCommandBuilder()
 					.WithName("backup")
 					.WithDescription("backup service")
-					.AddOption(new SlashCommandOptionBuilder().WithName("on").WithDescription("backup on for channel").WithType(ApplicationCommandOptionType.SubCommand))
-					.AddOption(new SlashCommandOptionBuilder().WithName("off").WithDescription("backup off for channel").WithType(ApplicationCommandOptionType.SubCommand));
+					.AddOption(new SlashCommandOptionBuilder().WithName("choose").WithDescription("choose between true or false").WithType(ApplicationCommandOptionType.Boolean));
 			await g.CreateApplicationCommandAsync(backup.Build());
 			Logger.LogInformation("Slash Command Backup");
 		}
