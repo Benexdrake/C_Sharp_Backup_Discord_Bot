@@ -1,4 +1,5 @@
 ﻿using DiscordBackup.Bot.Commands;
+using DiscordBackup.Bot.Data.Logic;
 
 Log.Logger = new LoggerConfiguration()
 		    .Enrich.FromLogContext()
@@ -32,6 +33,7 @@ try
 			});
 
 			service.AddScoped<BackupCommand>();
+			service.AddScoped<BackupLogic>();
 			service.AddSingleton<CommandHandler>();
 			service.AddHostedService<BackupBot>();
 

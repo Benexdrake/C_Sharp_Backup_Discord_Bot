@@ -1,5 +1,7 @@
 ﻿
 
+using DiscordBackup.Bot.Data.Logic;
+
 namespace DiscordBackupBot;
 
 public class BackupBot(IServiceProvider Services, IConfiguration Config, ILogger<BackupBot> Logger) : IHostedService
@@ -8,6 +10,7 @@ public class BackupBot(IServiceProvider Services, IConfiguration Config, ILogger
 	private readonly DiscordSocketClient _dsc = Services.GetRequiredService<DiscordSocketClient>();
 	private readonly BackupCommand _backupSlash = Services.GetRequiredService<BackupCommand>();
 	private readonly CommandHandler _ch = Services.GetRequiredService<CommandHandler>();  
+	private readonly BackupLogic _backupLogic = Services.GetRequiredService<BackupLogic>();
 
 	private void AddBotEvents()
 	{
@@ -28,8 +31,7 @@ public class BackupBot(IServiceProvider Services, IConfiguration Config, ILogger
 
 	private async Task Event_MessageCreated(SocketMessage arg)
 	{
-		Logger.LogInformation(arg.Content);
-
+		await _backupLogic.MessageHandler(arg);
 	}
 
 	private async Task Event_Log(LogMessage arg)
