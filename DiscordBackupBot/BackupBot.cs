@@ -2,7 +2,7 @@
 
 public class BackupBot(IServiceProvider Services, IConfiguration Config, ILogger<BackupBot> Logger) : IHostedService
 {
-	private readonly DiscordSocketClient _dsc = Services.GetRequiredService<DiscordSocketClient>();
+	private readonly DiscordSocketClient _client = Services.GetRequiredService<DiscordSocketClient>();
 
 	private readonly BackupChannelCommand _backupSlash = Services.GetRequiredService<BackupChannelCommand>();
 	private readonly AddBackupGuildCommand _addBackup = Services.GetRequiredService<AddBackupGuildCommand>();
@@ -13,14 +13,14 @@ public class BackupBot(IServiceProvider Services, IConfiguration Config, ILogger
 
 	private void AddBotEvents()
 	{
-		_dsc.Ready += Event_Ready;
-		_dsc.Log += Event_Log;
-		_dsc.MessageReceived += _mh.MessageCreated;
-		_dsc.MessageDeleted += _mh.MessageDeleted;
-		_dsc.UserCommandExecuted += _ch.UserCommandExecuted;		
-		_dsc.SlashCommandExecuted += _ch.SlashCommandExecuted;
-		_dsc.JoinedGuild += _jh.JoinedGuild;
-		_dsc.UserJoined += _jh.UserJoined;
+		_client.Ready += Event_Ready;
+		_client.Log += Event_Log;
+		_client.MessageReceived += _mh.MessageCreated;
+		_client.MessageDeleted += _mh.MessageDeleted;
+		_client.UserCommandExecuted += _ch.UserCommandExecuted;		
+		_client.SlashCommandExecuted += _ch.SlashCommandExecuted;
+		_client.JoinedGuild += _jh.JoinedGuild;
+		_client.UserJoined += _jh.UserJoined;
 	}
 
 	private async Task Event_Log(LogMessage arg)
@@ -30,7 +30,7 @@ public class BackupBot(IServiceProvider Services, IConfiguration Config, ILogger
 
 	private async Task Event_Ready()
 	{
-		await _dsc.SetActivityAsync(new Game("der Community", ActivityType.Listening));
+		await _client.SetActivityAsync(new Game("der Community", ActivityType.Listening));
 		await _backupSlash.Build();
 		await _addBackup.Build();
 	}
@@ -45,13 +45,13 @@ public class BackupBot(IServiceProvider Services, IConfiguration Config, ILogger
 
 		var key = Config["Token"];
 
-		await _dsc.LoginAsync(TokenType.Bot, key);
-		await _dsc.StartAsync();
+		await _client.LoginAsync(TokenType.Bot, key);
+		await _client.StartAsync();
 	}
 
 	public async Task StopAsync(CancellationToken cancellationToken)
 	{
-		await _dsc.LogoutAsync();
-		await _dsc.StopAsync();
+		await _client.LogoutAsync();
+		await _client.StopAsync();
 	}
 }
