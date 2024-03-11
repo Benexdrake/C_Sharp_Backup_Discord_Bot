@@ -3,6 +3,7 @@
 public class JoinedLogic(IServiceProvider Services, IConfiguration Config, ILogger<BackupBot> Logger)
 {
 	private readonly DiscordSocketClient _client = Services.GetRequiredService<DiscordSocketClient>();
+	private readonly DbbContext _dbContext = Services.GetRequiredService<DbbContext>();
 
 	public async Task UserJoined(SocketGuildUser arg)
 	{
@@ -18,7 +19,11 @@ public class JoinedLogic(IServiceProvider Services, IConfiguration Config, ILogg
 
 	public async Task JoinedGuild(SocketGuild guild)
 	{
-		if (guild.Name.Equals("backup"))
+		var backupDb = _dbContext.BackupGuild.FirstOrDefault();
+		if (backupDb is null)
+			return;
+
+		if (guild.Id == backupDb.Id)
 		{
 			foreach (var channel in guild.Channels)
 			{
